@@ -1,6 +1,8 @@
 IOS-TwitterClient
 =================
 
+Time spent: 18+ hours
+
 Completed Stories:
 - User can sign in using OAuth login flow
 - User can view last 20 tweets from their home timeline
