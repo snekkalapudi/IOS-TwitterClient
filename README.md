@@ -13,4 +13,3 @@ Completed Stories:
 - Optional: After creating a new tweet, a user should be able to view it in the timeline immediately without refetching the timeline from the network.
 - Optional: Retweeting and favoriting should increment the retweet and favorite count.
 - Optional: User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.
-- 
