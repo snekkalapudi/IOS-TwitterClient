@@ -15,6 +15,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var infiniteActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var tweetsTableView: UITableView!
 
+    var viewMode = "home" // Can be set to mentions and in that case we will pull up the mentions view
     var tweets: [Tweet] = []
     var sb = UIStoryboard(name: "Main", bundle: nil)
     var isInfiniteRefreshing = false
@@ -28,7 +29,18 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     var upBeep = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("up", ofType: "wav")!)
     var upBeepAudioPlayer = AVAudioPlayer()
+    
+    @IBAction func onProfileThumbClick(sender: UIButton) {
+        NSLog("Clicked the profile image")
+        var vc = sb.instantiateViewControllerWithIdentifier("ProfileViewNavigationController") as UIViewController
+        
+        var indexPathRow = sender.tag
+        var tweet = tweets[indexPathRow]
 
+        var profileViewController: ProfileViewController = vc.childViewControllers[0] as ProfileViewController
+        profileViewController.user = tweet.user
+        self.presentViewController(vc, animated: true, completion: nil)
+    }
 
     @IBAction func onNewTweet(sender: AnyObject) {
         var vc = sb.instantiateViewControllerWithIdentifier("CreateTweetNavigationController") as UIViewController
@@ -44,7 +56,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tweet.retweetCount! += 1
         var cell = self.tweetsTableView.cellForRowAtIndexPath(NSIndexPath(forRow: indexPathRow, inSection: 0)) as TweetCell
         cell.tweet = tweet
-
+        
 
         Tweet.retweet(tweet.id!, completion: {(error: NSError?) -> Void in
             if (error != nil) {
@@ -53,6 +65,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 tweet.retweetCount! -= 1
                 var cell = self.tweetsTableView.cellForRowAtIndexPath(NSIndexPath(forRow: indexPathRow, inSection: 0)) as TweetCell
                 cell.tweet = tweet
+                
 
             } else {
                 println("retweeted!!!!!  while retweeting!")
@@ -135,7 +148,7 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.refreshLoadingView!.backgroundColor = UIColor.clearColor()
         
         // Create the graphic image views
-        self.refreshArrowImageView = UIImageView(image: UIImage(named: "refresh-arrow.png"))
+        self.refreshArrowImageView = UIImageView(image: UIImage(named: "refresh.gif"))
 
     
         // Add the graphics to the loading view
@@ -226,26 +239,40 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     func refresh() {
-        println("calling refresh..")
-        var attributedString = NSMutableAttributedString(string: "Refreshing")
-        attributedString.addAttribute(NSForegroundColorAttributeName, value: UIColor(red: 41.0/255.0, green: 47.0/255.0, blue: 51.0/255.0, alpha: 1.0), range: NSMakeRange(0, attributedString.length))
-        self.refreshControl!.attributedTitle = attributedString
-
-        Tweet.getHomeTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
-            if (tweets != nil) {
-                self.tweets = tweets!
-                println("Done refreshing")
-                var attributedString = NSMutableAttributedString(string: "")
-                self.refreshControl!.attributedTitle = attributedString
-                self.refreshControl!.endRefreshing()
-                self.tweetsTableView.reloadData()
-            } else {
-                println("Failed to get the tweets \(error!)")
-                var attributedString = NSMutableAttributedString(string: "")
-                self.refreshControl!.attributedTitle = attributedString
-                self.refreshControl!.endRefreshing()
-            }
-        })
+        if self.viewMode == "home" {
+            Tweet.getHomeTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
+                if (tweets != nil) {
+                    self.tweets = tweets!
+                    println("Done refreshing")
+                    var attributedString = NSMutableAttributedString(string: "")
+                    self.refreshControl!.attributedTitle = attributedString
+                    self.refreshControl!.endRefreshing()
+                    self.tweetsTableView.reloadData()
+                } else {
+                    println("Failed to get the tweets \(error!)")
+                    var attributedString = NSMutableAttributedString(string: "")
+                    self.refreshControl!.attributedTitle = attributedString
+                    self.refreshControl!.endRefreshing()
+                }
+            })
+        } else if self.viewMode == "mentions" {
+            Tweet.getMentionsTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
+                if (tweets != nil) {
+                    self.tweets = tweets!
+                    println("Done refreshing")
+                    var attributedString = NSMutableAttributedString(string: "")
+                    self.refreshControl!.attributedTitle = attributedString
+                    self.refreshControl!.endRefreshing()
+                    self.tweetsTableView.reloadData()
+                } else {
+                    println("Failed to get the tweets \(error!)")
+                    var attributedString = NSMutableAttributedString(string: "")
+                    self.refreshControl!.attributedTitle = attributedString
+                    self.refreshControl!.endRefreshing()
+                }
+            })
+        }
+        
     }
 
     override func viewDidLoad() {
@@ -261,15 +288,28 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         tweetsTableView.estimatedRowHeight = 89.0;
         setupRefreshControl()
 
+        if self.viewMode == "home" {
+            self.navigationItem.title = "Home"
+            Tweet.getHomeTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
+                if (tweets != nil) {
+                    self.tweets = tweets!
+                    self.tweetsTableView.reloadData()
+                } else {
+                    println("Failed to get the tweets \(error!)")
+                }
+            })
+        } else if self.viewMode == "mentions" {
+            self.navigationItem.title = "Mentions"
+            Tweet.getMentionsTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
+                if (tweets != nil) {
+                    self.tweets = tweets!
+                    self.tweetsTableView.reloadData()
+                } else {
+                    println("Failed to get the mentions \(error!)")
+                }
+            })
+        }
 
-        Tweet.getHomeTimeline(nil, completion: {(tweets: [Tweet]?, error: NSError?) -> Void in
-            if (tweets != nil) {
-                self.tweets = tweets!
-                self.tweetsTableView.reloadData()
-            } else {
-                println("Failed to get the tweets \(error!)")
-            }
-        })
         
         // This will listen to the tweets when they are created
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "newTweetCreated:", name:"NewTweetCreated", object: nil)
@@ -319,16 +359,30 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var params: NSDictionary = ["max_id": self.tweets[tweets.count-1].id!]
         self.isInfiniteRefreshing = true
         //println("\(params)")
-        Tweet.getHomeTimeline(params, completion: {(newTweets: [Tweet]?, error: NSError?) -> Void in
-            if (newTweets != nil) {
-                self.tweets += newTweets!
-                self.tweetsTableView.reloadData()
-                self.infiniteActivityIndicator.hidden = true
-                self.isInfiniteRefreshing = false
-            } else {
-                println("Failed to get the tweets \(error!)")
-            }
-        })
+        if (self.viewMode == "home") {
+            Tweet.getHomeTimeline(params, completion: {(newTweets: [Tweet]?, error: NSError?) -> Void in
+                if (newTweets != nil) {
+                    self.tweets += newTweets!
+                    self.tweetsTableView.reloadData()
+                    self.infiniteActivityIndicator.hidden = true
+                    self.isInfiniteRefreshing = false
+                } else {
+                    println("Failed to get the tweets \(error!)")
+                }
+            })
+        } else if self.viewMode == "mentions" {
+            Tweet.getMentionsTimeline(params, completion: {(newTweets: [Tweet]?, error: NSError?) -> Void in
+                if (newTweets != nil) {
+                    self.tweets += newTweets!
+                    self.tweetsTableView.reloadData()
+                    self.infiniteActivityIndicator.hidden = true
+                    self.isInfiniteRefreshing = false
+                } else {
+                    println("Failed to get the mentions \(error!)")
+                }
+            })
+        }
+        
     }
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

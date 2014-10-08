@@ -92,6 +92,36 @@ class Tweet: NSObject {
         )
     }
     
+    class func getMentionsTimeline(params: NSDictionary?, completion: (tweets: [Tweet]?, error: NSError?) -> ()) {
+        TwitterClient.sharedInstance.GET("1.1/statuses/mentions_timeline.json", parameters: params,
+            success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+                //println("user: \(response)")
+                var tweets = Tweet.tweetsWithArray(response as [NSDictionary])
+                completion(tweets: tweets, error: nil)
+                println("Got Mentions")
+                
+            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) -> Void in
+                println("failed to get the Mentions user data")
+                completion(tweets: nil, error: error)
+            }
+        )
+    }
+    
+    class func getUserTimeline(screenName: String, completion: (tweets: [Tweet]?, error: NSError?) -> ()) {
+        TwitterClient.sharedInstance.GET("1.1/statuses/user_timeline.json?screen_name=\(screenName)", parameters: nil,
+            success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
+                //println("user: \(response)")
+                var tweets = Tweet.tweetsWithArray(response as [NSDictionary])
+                completion(tweets: tweets, error: nil)
+                println("Got user timeline ")
+                
+            }, failure: { (operation: AFHTTPRequestOperation!, error: NSError!) -> Void in
+                println("failed to get the Mentions user data")
+                completion(tweets: nil, error: error)
+            }
+        )
+    }
+
     class func retweet(id: String, completion: (error: NSError?) -> ()) {
         TwitterClient.sharedInstance.POST("1.1/statuses/retweet/\(id).json", parameters: nil,
             success: { (operation: AFHTTPRequestOperation!, response: AnyObject!) -> Void in
