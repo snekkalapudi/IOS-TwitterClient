@@ -1,6 +1,13 @@
 IOS-TwitterClient
 =================
 
+Demo:
+
+![Video Walkthrough](twitter/Twitter-assignment2.gif)
+
+
+
+-- Assignment: 1
 Time spent: 18+ hours
 
 Completed Stories:
