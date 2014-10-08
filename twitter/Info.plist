@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.satish.$(PRODUCT_NAME:rfc1034identifier)</string>
+	<string>com.twiyt.$(PRODUCT_NAME:rfc1034identifier)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -24,7 +24,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.satish.twitter</string>
+			<string>com.twiyt.twitter</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>cptwitterdemo</string>

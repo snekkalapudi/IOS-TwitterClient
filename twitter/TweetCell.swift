@@ -24,15 +24,18 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var timeLabelTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var nameLabelTopConstraint: NSLayoutConstraint!
 
+    @IBOutlet weak var profileThumbButtonTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var retweetButton: UIButton!
+    @IBOutlet weak var profileThumbButton: UIButton!
 
     var parentViewController: TweetsViewController?
     var sb = UIStoryboard(name: "Main", bundle: nil)
 
     var indexPathRow: Int = -1
     
+
     var tweet: Tweet! {
 
         willSet(newTweet) {
@@ -60,6 +63,7 @@ class TweetCell: UITableViewCell {
                 
                 handleLabelTopConstraint.constant = 25.0
                 profileThumbViewTopConstraint.constant = 25.0
+                profileThumbButtonTopConstraint.constant = 25.0
                 timeLabelTopConstraint.constant = 25.0
                 nameLabelTopConstraint.constant = 24.0
 
@@ -69,6 +73,7 @@ class TweetCell: UITableViewCell {
                 self.tweetHeaderIconView.hidden = true
                 handleLabelTopConstraint.constant = 9.0
                 profileThumbViewTopConstraint.constant = 9.0
+                profileThumbButtonTopConstraint.constant = 9.0
                 timeLabelTopConstraint.constant = 9.0
                 nameLabelTopConstraint.constant = 8.0
 
@@ -98,10 +103,13 @@ class TweetCell: UITableViewCell {
                 let image = UIImage(named: "favorite-light.png") as UIImage
                 self.favoriteButton.setImage(image, forState: UIControlState.Normal)
             }
+            profileThumbButton.imageView?.image = profileThumbView.image
+
             // These tags will help when the user clicks to figure out what row this belongs to.
             self.replyButton.tag = self.indexPathRow
             self.retweetButton.tag = self.indexPathRow
             self.favoriteButton.tag = self.indexPathRow
+            self.profileThumbButton.tag = self.indexPathRow
         }
 
         didSet(oldValue) {
